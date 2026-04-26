@@ -1,0 +1,70 @@
+const router = require('express').Router();
+const User = require('../models/User');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+
+// Middleware to verify JWT token
+const verifyToken = (req, res, next) => {
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) return res.status(401).json({ error: 'No token provided' });
+  try {
+    req.user = jwt.verify(token, process.env.JWT_SECRET);
+    next();
+  } catch {
+    res.status(401).json({ error: 'Invalid token' });
+  }
+};
+
+// REGISTER
+router.post('/register', async (req, res) => {
+  const { student_id, first_name, last_name, email, password } = req.body;
+
+  // Validate Student ID format: YY-NNNN
+  const idPattern = /^\d{2}-\d{4}$/;
+  if (!idPattern.test(student_id))
+    return res.status(400).json({ error: 'Invalid Student ID format. Use YY-NNNN (e.g. 25-0169)' });
+
+  const exists = await User.findOne({ student_id });
+  if (exists) return res.status(400).json({ error: 'Student ID already registered' });
+
+  const user = new User({ student_id, first_name, last_name, email, password });
+  await user.save();
+  res.json({ message: 'Registered successfully! You can now log in.' });
+});
+
+// LOGIN
+router.post('/login', async (req, res) => {
+  const { student_id, password } = req.body;
+  const user = await User.findOne({ student_id });
+  if (!user) return res.status(400).json({ error: 'Student ID not found' });
+
+  const match = await bcrypt.compare(password, user.password);
+  if (!match) return res.status(400).json({ error: 'Incorrect password' });
+
+  const token = jwt.sign(
+    { id: user._id, role: user.role, student_id: user.student_id },
+    process.env.JWT_SECRET,
+    { expiresIn: '7d' }
+  );
+
+  res.json({
+    token,
+    user: {
+      id: user._id,
+      student_id: user.student_id,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      email: user.email,
+      role: user.role,
+    }
+  });
+});
+
+// GET current user (protected)
+router.get('/me', verifyToken, async (req, res) => {
+  const user = await User.findById(req.user.id).select('-password');
+  res.json(user);
+});
+
+module.exports = router;
+module.exports.verifyToken = verifyToken;
