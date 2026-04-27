@@ -19,7 +19,7 @@ export default function Login() {
             login(res.data.token, res.data.user);
             navigate('/shop');
         } catch (err) {
-            setError(err.reponse?.data?.error || 'Login Failed');
+            setError(err.response?.data?.error || 'Login Failed');
         } finally {
             setLoading(false);
         }

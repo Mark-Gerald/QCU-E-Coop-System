@@ -6,6 +6,8 @@ import Cart from './pages/Cart';
 import Orders from './pages/Orders';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import About from './pages/About';
+import Contact from './pages/Contact';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminProducts from './pages/admin/AdminProducts';
 import AdminOrders from './pages/admin/AdminOrders';
@@ -26,6 +28,8 @@ export default function App() {
         <Route path="/orders"          element={<Orders />} />
         <Route path="/login"           element={<Login />} />
         <Route path="/register"        element={<Register />} />
+        <Route path="/about"           element={<About />} />
+        <Route path="/contact"         element={<Contact />} />
         <Route path="/admin"           element={<AdminDashboard />} />
         <Route path="/admin/products"  element={<AdminProducts />} />
         <Route path="/admin/orders"    element={<AdminOrders />} />
