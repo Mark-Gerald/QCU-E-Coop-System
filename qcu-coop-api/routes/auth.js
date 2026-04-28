@@ -17,19 +17,35 @@ const verifyToken = (req, res, next) => {
 
 // REGISTER
 router.post('/register', async (req, res) => {
-  const { student_id, first_name, last_name, email, password } = req.body;
+  try {
+    const { student_id, first_name, last_name, email, password } = req.body;
 
-  // Validate Student ID format: YY-NNNN
-  const idPattern = /^\d{2}-\d{4}$/;
-  if (!idPattern.test(student_id))
-    return res.status(400).json({ error: 'Invalid Student ID format. Use YY-NNNN (e.g. 25-0169)' });
+    const idPattern = /^\d{2}-\d{4}$/;
+    if (!idPattern.test(student_id))
+      return res.status(400).json({ error: 'Invalid Student ID format. Use YY-NNNN (e.g. 25-0169)' });
 
-  const exists = await User.findOne({ student_id });
-  if (exists) return res.status(400).json({ error: 'Student ID already registered' });
+    const exists = await User.findOne({ student_id });
+    if (exists)
+      return res.status(400).json({ error: 'Student ID already registered' });
 
-  const user = new User({ student_id, first_name, last_name, email, password });
-  await user.save();
-  res.json({ message: 'Registered successfully! You can now log in.' });
+    // ✅ Hash password manually before saving
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = new User({
+      student_id,
+      first_name,
+      last_name,
+      email,
+      password: hashedPassword,
+    });
+
+    await user.save();
+    res.json({ message: 'Registered successfully! You can now log in.' });
+
+  } catch (err) {
+    console.error('Register error:', err.message);
+    res.status(500).json({ error: 'Server error: ' + err.message });
+  }
 });
 
 // LOGIN

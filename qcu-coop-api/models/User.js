@@ -10,11 +10,9 @@ const UserSchema = new mongoose.Schema({
   role:        { type: String, enum: ['student', 'admin'], default: 'student' },
 }, { timestamps: true });
 
-// Auto-hash password before saving
-UserSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) return next();
-  this.password = await bcrypt.hash(this.password, 10);
-  next();
-});
+// ✅ Completely avoid pre-save hook — hash manually in the route instead
+UserSchema.methods.comparePassword = async function(candidatePassword) {
+  return bcrypt.compare(candidatePassword, this.password);
+};
 
 module.exports = mongoose.model('User', UserSchema);

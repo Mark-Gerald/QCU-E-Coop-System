@@ -21,4 +21,4 @@ app.use('/api/orders', require('./routes/orders'));
 app.get('/', (req, res) => res.json({message: 'QCU-Coop API is Running!'}));
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server Running on http://localhost.${PORT}`));
+app.listen(PORT, () => console.log(`Server Running on http://localhost:${PORT}`));
