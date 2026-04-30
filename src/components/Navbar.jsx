@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { ShoppingCart, Menu, X, User, ChevronDown, LogOut, Package } from 'lucide-react';
+import { ShoppingCart, Menu, X, ChevronDown, LogOut, Package, Shield } from 'lucide-react';
 
 export default function Navbar({ cartCount = 0 }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
@@ -15,58 +16,83 @@ export default function Navbar({ cartCount = 0 }) {
     navigate('/');
   };
 
+  const handleAdminAccess = () => {
+    setDropdownOpen(false);
+    setMenuOpen(false);
+    if (user) {
+      const confirmed = window.confirm('Do you want to log out and proceed to the Administration page?');
+      if (confirmed) { logout(); navigate('/admin/login'); }
+    } else {
+      navigate('/admin/login');
+    }
+  };
+
+  // Active link style helper
+  const navLinkStyle = (path) => ({
+    color: location.pathname === path ? '#1a2e5a' : '#555',
+    textDecoration: 'none',
+    fontWeight: location.pathname === path ? '700' : '500',
+    fontSize: '0.95rem',
+    paddingBottom: '2px',
+    borderBottom: location.pathname === path ? '2px solid #f5c518' : '2px solid transparent',
+    transition: 'all 0.2s',
+  });
+
   return (
-    <nav className="bg-white shadow-sm sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+    <nav style={{ background: 'white', boxShadow: '0 1px 8px rgba(0,0,0,0.08)', position: 'sticky', top: 0, zIndex: 50 }}>
+      <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 24px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '64px' }}>
 
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-3 no-underline">
-            <img
-              src="/qcu_logo.png"
-              alt="QCU Logo"
-              className="h-10 w-10 rounded-full object-cover"
-              onError={e => { e.target.style.display = 'none'; }}
-            />
+          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '12px', textDecoration: 'none' }}>
+            <img src="/qcu_logo.png" alt="QCU Logo"
+              style={{ height: '40px', width: '40px', borderRadius: '50%', objectFit: 'cover' }}
+              onError={e => { e.target.style.display = 'none'; }} />
             <div>
-              <div style={{ color: '#1a2e5a', fontWeight: '700', fontSize: '1rem', lineHeight: 1.2 }}>
-                QCU Cooperative
-              </div>
-              <div style={{ color: '#888', fontSize: '0.7rem' }}>Quezon City University</div>
+              <div style={{ color: '#1a2e5a', fontWeight: '700', fontSize: '1rem', lineHeight: 1.2 }}>QCU Cooperative</div>
+              <div style={{ color: '#9ca3af', fontSize: '0.7rem' }}>Quezon City University</div>
             </div>
           </Link>
 
           {/* Desktop Nav Links */}
-          <div className="hidden md:flex items-center gap-8">
-            <Link to="/shop" style={{ color: '#555', textDecoration: 'none', fontWeight: '500', fontSize: '0.95rem' }}
-              className="hover:text-blue-900 transition-colors">Shop</Link>
-            <Link to="/about" style={{ color: '#555', textDecoration: 'none', fontWeight: '500', fontSize: '0.95rem' }}
-              className="hover:text-blue-900 transition-colors">About Us</Link>
-            <Link to="/contact" style={{ color: '#555', textDecoration: 'none', fontWeight: '500', fontSize: '0.95rem' }}
-              className="hover:text-blue-900 transition-colors">Contact</Link>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }} className="hidden md:flex">
+            <Link to="/shop" style={navLinkStyle('/shop')}>Shop</Link>
+            <Link to="/about" style={navLinkStyle('/about')}>About Us</Link>
+            <Link to="/contact" style={navLinkStyle('/contact')}>Contact</Link>
           </div>
 
-          {/* Right Side */}
-          <div className="hidden md:flex items-center gap-4">
+          {/* Right Side — Desktop */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }} className="hidden md:flex">
             {/* Cart */}
-            <Link to="/cart" className="relative" style={{ color: '#1a2e5a', textDecoration: 'none' }}>
+            <Link to="/cart" style={{ position: 'relative', color: '#1a2e5a', textDecoration: 'none' }}>
               <ShoppingCart size={22} />
               {cartCount > 0 && (
-                <span className="absolute -top-2 -right-2 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center"
-                  style={{ background: '#f5c518', color: '#1a2e5a', fontWeight: 'bold', fontSize: '0.65rem' }}>
+                <span style={{
+                  position: 'absolute', top: '-8px', right: '-8px',
+                  background: '#f5c518', color: '#1a2e5a', fontWeight: 'bold',
+                  fontSize: '0.65rem', borderRadius: '50%', width: '18px', height: '18px',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}>
                   {cartCount}
                 </span>
               )}
             </Link>
 
-            {/* User */}
+            {/* User Dropdown */}
             {user ? (
-              <div className="relative">
+              <div style={{ position: 'relative' }}>
                 <button onClick={() => setDropdownOpen(!dropdownOpen)}
-                  className="flex items-center gap-2 rounded-full px-3 py-1.5 transition-colors"
-                  style={{ background: '#1a2e5a', color: 'white', border: 'none', cursor: 'pointer', fontSize: '0.85rem' }}>
-                  <div className="w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs"
-                    style={{ background: '#f5c518', color: '#1a2e5a' }}>
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 14px',
+                    background: '#1a2e5a', color: 'white', border: 'none', borderRadius: '20px',
+                    cursor: 'pointer', fontSize: '0.875rem',
+                  }}>
+                  <div style={{
+                    width: '24px', height: '24px', borderRadius: '50%',
+                    background: '#f5c518', color: '#1a2e5a',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontWeight: '800', fontSize: '0.75rem',
+                  }}>
                     {user.first_name?.[0]?.toUpperCase()}
                   </div>
                   <span>{user.first_name}</span>
@@ -74,74 +100,124 @@ export default function Navbar({ cartCount = 0 }) {
                 </button>
 
                 {dropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg py-2 z-50"
-                    style={{ border: '1px solid #e5e7eb' }}>
-                    <Link to="/orders" onClick={() => setDropdownOpen(false)}
-                      className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-50"
-                      style={{ color: '#333', textDecoration: 'none' }}>
-                      <Package size={15} /> My Orders
-                    </Link>
-                    {user.role === 'admin' && (
-                      <Link to="/admin" onClick={() => setDropdownOpen(false)}
-                        className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-50"
-                        style={{ color: '#f5c518', textDecoration: 'none', fontWeight: '600' }}>
-                        ⚙️ Admin Panel
+                  <>
+                    {/* Backdrop */}
+                    <div style={{ position: 'fixed', inset: 0, zIndex: 40 }} onClick={() => setDropdownOpen(false)} />
+                    <div style={{
+                      position: 'absolute', right: 0, top: 'calc(100% + 8px)',
+                      width: '200px', background: 'white', borderRadius: '12px',
+                      boxShadow: '0 8px 24px rgba(0,0,0,0.12)', border: '1px solid #f0f0f0',
+                      zIndex: 50, overflow: 'hidden',
+                    }}>
+                      <div style={{ padding: '12px 16px', borderBottom: '1px solid #f0f0f0' }}>
+                        <p style={{ margin: 0, fontWeight: '700', color: '#1a2e5a', fontSize: '0.875rem' }}>
+                          {user.first_name} {user.last_name}
+                        </p>
+                        <p style={{ margin: 0, color: '#9ca3af', fontSize: '0.75rem' }}>{user.email}</p>
+                      </div>
+
+                      <Link to="/orders" onClick={() => setDropdownOpen(false)}
+                        style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', color: '#374151', textDecoration: 'none', fontSize: '0.875rem' }}
+                        className="hover:bg-gray-50">
+                        <Package size={15} /> My Orders
                       </Link>
-                    )}
-                    <hr style={{ margin: '4px 0', borderColor: '#f0f0f0' }} />
-                    <button onClick={handleLogout}
-                      className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-50 w-full text-left"
-                      style={{ color: '#e53e3e', background: 'none', border: 'none', cursor: 'pointer' }}>
-                      <LogOut size={15} /> Logout
-                    </button>
-                  </div>
+
+                      {user.role === 'admin' && (
+                        <Link to="/admin" onClick={() => setDropdownOpen(false)}
+                          style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', color: '#d97706', textDecoration: 'none', fontSize: '0.875rem', fontWeight: '600' }}
+                          className="hover:bg-gray-50">
+                          ⚙️ Admin Panel
+                        </Link>
+                      )}
+
+                      <button onClick={handleAdminAccess}
+                        style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', color: '#6b7280', background: 'none', border: 'none', cursor: 'pointer', width: '100%', textAlign: 'left', fontSize: '0.875rem' }}
+                        className="hover:bg-gray-50">
+                        <Shield size={15} /> Administration
+                      </button>
+
+                      <div style={{ borderTop: '1px solid #f0f0f0' }}>
+                        <button onClick={handleLogout}
+                          style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer', width: '100%', textAlign: 'left', fontSize: '0.875rem' }}
+                          className="hover:bg-red-50">
+                          <LogOut size={15} /> Logout
+                        </button>
+                      </div>
+                    </div>
+                  </>
                 )}
               </div>
             ) : (
-              <Link to="/login"
-                className="px-5 py-2 rounded-lg font-semibold text-sm transition-colors"
-                style={{ background: '#1a2e5a', color: 'white', textDecoration: 'none' }}>
-                Sign In
-              </Link>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <button onClick={handleAdminAccess}
+                  style={{ padding: '7px 14px', background: 'transparent', border: '1.5px solid #e5e7eb', borderRadius: '8px', cursor: 'pointer', color: '#6b7280', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Shield size={14} /> Admin
+                </button>
+                <Link to="/login"
+                  style={{ padding: '8px 20px', background: '#1a2e5a', color: 'white', textDecoration: 'none', borderRadius: '8px', fontWeight: '600', fontSize: '0.875rem' }}>
+                  Sign In
+                </Link>
+              </div>
             )}
-          </div>
-
-          {/* Mobile Hamburger */}
-          <div className="flex md:hidden items-center gap-4">
-            <Link to="/cart" className="relative" style={{ color: '#1a2e5a', textDecoration: 'none' }}>
-              <ShoppingCart size={22} />
-              {cartCount > 0 && (
-                <span className="absolute -top-2 -right-2 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center"
-                  style={{ background: '#f5c518', color: '#1a2e5a', fontWeight: 'bold' }}>
-                  {cartCount}
-                </span>
-              )}
-            </Link>
-            <button onClick={() => setMenuOpen(!menuOpen)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#1a2e5a' }}>
-              {menuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
           </div>
         </div>
       </div>
 
       {/* Mobile Menu */}
       {menuOpen && (
-        <div className="md:hidden bg-white border-t px-4 py-4 flex flex-col gap-3" style={{ borderColor: '#e5e7eb' }}>
-          <Link to="/shop" onClick={() => setMenuOpen(false)} style={{ color: '#333', textDecoration: 'none', padding: '8px 0', fontWeight: '500' }}>Shop</Link>
-          <Link to="/about" onClick={() => setMenuOpen(false)} style={{ color: '#333', textDecoration: 'none', padding: '8px 0', fontWeight: '500' }}>About Us</Link>
-          <Link to="/contact" onClick={() => setMenuOpen(false)} style={{ color: '#333', textDecoration: 'none', padding: '8px 0', fontWeight: '500' }}>Contact</Link>
-          {user ? (
-            <>
-              <Link to="/orders" onClick={() => setMenuOpen(false)} style={{ color: '#333', textDecoration: 'none', padding: '8px 0' }}>My Orders</Link>
-              {user.role === 'admin' && <Link to="/admin" onClick={() => setMenuOpen(false)} style={{ color: '#f5c518', textDecoration: 'none', padding: '8px 0', fontWeight: '600' }}>Admin Panel</Link>}
-              <button onClick={handleLogout} style={{ background: 'none', border: 'none', color: '#e53e3e', textAlign: 'left', padding: '8px 0', cursor: 'pointer', fontWeight: '500' }}>Logout</button>
-            </>
-          ) : (
-            <Link to="/login" onClick={() => setMenuOpen(false)}
-              style={{ background: '#1a2e5a', color: 'white', textDecoration: 'none', padding: '10px 16px', borderRadius: '8px', textAlign: 'center', fontWeight: '600' }}>
-              Sign In
+        <div style={{ background: 'white', borderTop: '1px solid #e5e7eb', padding: '16px 24px', display: 'flex', flexDirection: 'column', gap: '4px' }} className="md:hidden">
+          {[
+            { to: '/shop', label: 'Shop' },
+            { to: '/about', label: 'About Us' },
+            { to: '/contact', label: 'Contact' },
+          ].map(link => (
+            <Link key={link.to} to={link.to} onClick={() => setMenuOpen(false)}
+              style={{
+                padding: '10px 12px', borderRadius: '8px', textDecoration: 'none', fontWeight: '500',
+                background: location.pathname === link.to ? '#f0f4ff' : 'transparent',
+                color: location.pathname === link.to ? '#1a2e5a' : '#374151',
+              }}>
+              {link.label}
             </Link>
-          )}
+          ))}
+          <div style={{ borderTop: '1px solid #f0f0f0', marginTop: '8px', paddingTop: '8px' }}>
+            {user ? (
+              <>
+                <p style={{ padding: '8px 12px', margin: 0, fontWeight: '700', color: '#1a2e5a', fontSize: '0.875rem' }}>
+                  {user.first_name} {user.last_name}
+                </p>
+                <Link to="/orders" onClick={() => setMenuOpen(false)}
+                  style={{ display: 'block', padding: '10px 12px', color: '#374151', textDecoration: 'none', borderRadius: '8px' }}>
+                  My Orders
+                </Link>
+                {user.role === 'admin' && (
+                  <Link to="/admin" onClick={() => setMenuOpen(false)}
+                    style={{ display: 'block', padding: '10px 12px', color: '#d97706', textDecoration: 'none', borderRadius: '8px', fontWeight: '600' }}>
+                    Admin Panel
+                  </Link>
+                )}
+                <button onClick={handleAdminAccess}
+                  style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 12px', background: 'none', border: 'none', cursor: 'pointer', color: '#6b7280', width: '100%', textAlign: 'left', borderRadius: '8px' }}>
+                  <Shield size={14} /> Administration
+                </button>
+                <button onClick={handleLogout}
+                  style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 12px', background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', width: '100%', textAlign: 'left', borderRadius: '8px' }}>
+                  <LogOut size={14} /> Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <button onClick={handleAdminAccess}
+                  style={{ display: 'block', width: '100%', padding: '10px 12px', marginBottom: '8px', background: 'transparent', border: '1.5px solid #e5e7eb', borderRadius: '8px', cursor: 'pointer', color: '#6b7280', textAlign: 'left' }}>
+                  ⚙️ Administration
+                </button>
+                <Link to="/login" onClick={() => setMenuOpen(false)}
+                  style={{ display: 'block', padding: '10px 16px', background: '#1a2e5a', color: 'white', textDecoration: 'none', borderRadius: '8px', textAlign: 'center', fontWeight: '600' }}>
+                  Sign In
+                </Link>
+              </>
+            )}
+          </div>
         </div>
       )}
     </nav>

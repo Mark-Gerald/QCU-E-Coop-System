@@ -82,5 +82,31 @@ router.get('/me', verifyToken, async (req, res) => {
   res.json(user);
 });
 
+
+// ADMIN LOGIN (email-based)
+router.post('/admin-login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email, role: 'admin' });
+    if (!user) return res.status(400).json({ error: 'No admin account found with that email' });
+
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) return res.status(400).json({ error: 'Incorrect password' });
+
+    const token = jwt.sign(
+      { id: user._id, role: user.role, student_id: user.student_id },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    res.json({
+      token,
+      user: { id: user._id, student_id: user.student_id, first_name: user.first_name, last_name: user.last_name, email: user.email, role: user.role }
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 module.exports = router;
 module.exports.verifyToken = verifyToken;

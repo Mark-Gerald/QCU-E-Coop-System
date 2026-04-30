@@ -94,6 +94,11 @@ export default function Register() {
       background: 'linear-gradient(135deg, #0f1e3d 0%, #1a2e5a 60%, #2d4a8a 100%)',
       padding: '20px',
     }}>
+      <button onClick={() => navigate('/login')}
+        style={{ position: 'absolute', top: '20px', left: '20px', background: 'rgba(255,255,255,0.15)', border: 'none', color: 'white', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '6px' }}>
+        ← Back
+        </button>
+
       <div style={{
         background: 'white', borderRadius: '24px', width: '100%', maxWidth: '460px',
         boxShadow: '0 24px 60px rgba(0,0,0,0.3)', overflow: 'hidden',
