@@ -58,7 +58,7 @@ export default function AdminDashboard() {
       <aside style={{ width: '240px', background: '#1a2e5a', minHeight: '100vh', padding: '0', flexShrink: 0, display: 'flex', flexDirection: 'column' }}>
         <div style={{ padding: '24px 20px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <img src="/qcu_logo.png" alt="QCU" style={{ width: '36px', height: '36px', borderRadius: '50%' }} onError={e => { e.target.style.display = 'none'; }} />
+            <img src="/qcu_logo.png" alt="QCU" style={{ width: '66px', height: '36px', borderRadius: '50%' }} onError={e => { e.target.style.display = 'none'; }} />
             <div>
               <div style={{ color: 'white', fontWeight: '700', fontSize: '0.9rem' }}>QCU Cooperative</div>
               <div style={{ color: '#94a3b8', fontSize: '0.7rem' }}>Admin Panel</div>

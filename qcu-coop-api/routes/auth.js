@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const User = require('../models/User');
+const Admin = require('../models/Admin');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
@@ -82,31 +83,70 @@ router.get('/me', verifyToken, async (req, res) => {
   res.json(user);
 });
 
-
 // ADMIN LOGIN (email-based)
 router.post('/admin-login', async (req, res) => {
   try {
     const { email, password } = req.body;
-    const user = await User.findOne({ email, role: 'admin' });
-    if (!user) return res.status(400).json({ error: 'No admin account found with that email' });
 
-    const match = await bcrypt.compare(password, user.password);
-    if (!match) return res.status(400).json({ error: 'Incorrect password' });
+    // Check Admin collection first
+    let adminUser = await Admin.findOne({ email });
+
+    // Fallback: check users collection for role=admin
+    if (!adminUser) {
+      adminUser = await User.findOne({ email, role: 'admin' });
+    }
+
+    if (!adminUser) {
+      return res.status(400).json({ error: 'No admin account found with that email' });
+    }
+
+    const match = await bcrypt.compare(password, adminUser.password);
+    if (!match) {
+      return res.status(400).json({ error: 'Incorrect password' });
+    }
 
     const token = jwt.sign(
-      { id: user._id, role: user.role, student_id: user.student_id },
+      {
+        id: adminUser._id,
+        role: 'admin',
+        student_id: adminUser.student_id || 'admin',
+        email: adminUser.email,
+      },
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
 
     res.json({
       token,
-      user: { id: user._id, student_id: user.student_id, first_name: user.first_name, last_name: user.last_name, email: user.email, role: user.role }
+      user: {
+        id: adminUser._id,
+        student_id: adminUser.student_id || 'admin',
+        first_name: adminUser.first_name || 'Admin',
+        last_name: adminUser.last_name || '',
+        email: adminUser.email,
+        role: 'admin',
+      }
     });
   } catch (err) {
-    res.status(500).json({ error: 'Server error' });
+    console.error('Admin login error:', err);
+    res.status(500).json({ error: 'Server error: ' + err.message });
   }
 });
+
+// TEMPORARY — remove after creating admin account
+router.post('/create-admin', async (req, res) => {
+  try {
+    const Admin = require('../models/Admin');
+    const { email, password, first_name, last_name } = req.body;
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const admin = new Admin({ email, password: hashedPassword, first_name, last_name });
+    await admin.save();
+    res.json({ message: 'Admin created successfully' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 
 module.exports = router;
 module.exports.verifyToken = verifyToken;
