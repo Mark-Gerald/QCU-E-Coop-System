@@ -41,9 +41,19 @@ export default function Home({ cart }) {
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full" style={{ position: 'relative', zIndex: 1 }}>
           <div style={{ maxWidth: '640px' }}>
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6"
-              style={{ background: 'rgba(245,197,24,0.15)', border: '1px solid rgba(245,197,24,0.3)', color: '#f5c518', fontSize: '0.875rem', fontWeight: '500' }}>
-              🎓 Official QCU Cooperative Store
+            <div
+              onClick={() => navigate('/shop')}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6"
+              style={{
+                      background: 'rgba(245,197,24,0.15)',
+                      border: '1px solid rgba(245,197,24,0.3)',
+                      color: '#f5c518', fontSize: '0.875rem', fontWeight: '500',
+                      cursor: 'pointer', transition: 'all 0.2s',
+                    }}
+                onMouseEnter={e => e.currentTarget.style.background = 'rgba(245,197,24,0.25)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'rgba(245,197,24,0.15)'}
+            >
+                🎓 Official QCU Cooperative Store
             </div>
             <h1 style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', fontWeight: '800', color: 'white', lineHeight: 1.15, marginBottom: '20px' }}>
               Everything You Need for{' '}
