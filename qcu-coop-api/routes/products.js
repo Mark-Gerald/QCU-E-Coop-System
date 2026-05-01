@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const Product = require('../models/Product');
 const { verifyToken } = require('./auth');
+const { upload } = require('../config/cloudinary');
 
 // GET all active products (public)
 router.get('/', async (req, res) => {
@@ -38,6 +39,15 @@ router.delete('/:id', verifyToken, async (req, res) => {
   if (req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
   await Product.findByIdAndDelete(req.params.id);
   res.json({ message: 'Product deleted' });
+});
+
+router.post('/upload-image', verifyToken, upload.single('image'), (req, res) => {
+  try {
+    if (req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+    res.json({ url: req.file.path });
+  } catch (err) {
+    res.status(500).json({ error: 'Upload failed' });
+  }
 });
 
 module.exports = router;

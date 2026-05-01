@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getProducts, createProduct, updateProduct, deleteProduct } from '../../api';
 import { ArrowLeft, Search, Plus, Pencil, Trash2, X, Package } from 'lucide-react';
+import ImageUploader from '../../components/ImageUploader';
 
 const empty = { name: '', price: '', description: '', image_url: '', category: 'Uniforms', stock: '' };
 
@@ -167,7 +168,6 @@ export default function AdminProducts() {
                 { key: 'name', label: 'Product Name *', placeholder: 'e.g. QCU PE Uniform' },
                 { key: 'price', label: 'Price (₱) *', placeholder: 'e.g. 250' },
                 { key: 'stock', label: 'Stock Quantity *', placeholder: 'e.g. 50' },
-                { key: 'image_url', label: 'Image URL', placeholder: 'https://...' },
               ].map(f => (
                 <div key={f.key}>
                   <label style={labelStyle}>{f.label}</label>
@@ -176,8 +176,16 @@ export default function AdminProducts() {
                     style={inputStyle}
                     onFocus={e => e.target.style.borderColor = '#1a2e5a'}
                     onBlur={e => e.target.style.borderColor = '#e2e8f0'} />
-                </div>
-              ))}
+                  </div>
+                ))}
+              <div>
+                <label style={labelStyle}>Product Image</label>
+                <ImageUploader
+                  value={form.image_url}
+                  onChange={(url) => setForm({ ...form, image_url: url })}
+                />
+              </div>
+
               <div>
                 <label style={labelStyle}>Category *</label>
                 <select value={form.category} onChange={e => setForm({ ...form, category: e.target.value })} style={inputStyle}>
