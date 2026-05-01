@@ -143,7 +143,7 @@ export default function Shop({ cart, setCart }) {
             </div>
           ) : (
             <>
-              <p style={{ color: '#6b7280', fontSize: '0.875rem', marginBottom: '20px' }}>
+              <p style={{ color: '#6b7280', fontSize: '0.9rem', marginBottom: '20px', fontWeight: 500 }}>
                 {filtered.length} product{filtered.length !== 1 ? 's' : ''} found
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">

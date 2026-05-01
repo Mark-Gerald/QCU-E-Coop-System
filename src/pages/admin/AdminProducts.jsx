@@ -11,6 +11,7 @@ export default function AdminProducts() {
   const [editing, setEditing] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [search, setSearch] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('All');
   const [loading, setLoading] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
 
@@ -43,10 +44,12 @@ export default function AdminProducts() {
     setDeleteConfirm(null);
   };
 
-  const filtered = products.filter(p =>
-    p.name.toLowerCase().includes(search.toLowerCase()) ||
-    p.category.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = products.filter(p => {
+  const matchSearch = p.name.toLowerCase().includes(search.toLowerCase()) ||
+    p.category.toLowerCase().includes(search.toLowerCase());
+  const matchCategory = categoryFilter === 'All' || p.category === categoryFilter;
+  return matchSearch && matchCategory;
+});
 
   const inputStyle = {
     width: '100%', padding: '10px 14px', borderRadius: '8px',
@@ -72,16 +75,39 @@ export default function AdminProducts() {
       </div>
 
       <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '32px 16px' }}>
-        {/* Search */}
-        <div style={{ position: 'relative', marginBottom: '24px', maxWidth: '400px' }}>
-          <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
-          <input placeholder="Search products..." value={search} onChange={e => setSearch(e.target.value)}
-            style={{ ...inputStyle, paddingLeft: '36px', background: 'white' }} />
-        </div>
+<div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginBottom: '24px', alignItems: 'center' }}>
+  {/* Search */}
+  <div style={{ position: 'relative', flex: 1, minWidth: '200px', maxWidth: '360px' }}>
+    <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+    <input placeholder="Search products..." value={search} onChange={e => setSearch(e.target.value)}
+      style={{ ...inputStyle, paddingLeft: '36px', background: 'white' }} />
+  </div>
+
+  {/* Category Pills */}
+  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+    {['All', 'Uniforms', 'School Supplies', 'ID & Lanyards'].map(cat => (
+      <button key={cat} onClick={() => setCategoryFilter(cat)}
+        style={{
+          padding: '8px 16px', borderRadius: '20px', border: 'none', cursor: 'pointer',
+          fontWeight: '600', fontSize: '0.8rem', transition: 'all 0.2s',
+          background: categoryFilter === cat ? '#1a2e5a' : 'white',
+          color: categoryFilter === cat ? 'white' : '#64748b',
+          boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
+        }}>
+        {cat}
+        {cat !== 'All' && (
+          <span style={{ marginLeft: '4px', opacity: 0.7 }}>
+            ({products.filter(p => p.category === cat).length})
+          </span>
+        )}
+      </button>
+    ))}
+  </div>
+</div>
 
         {/* Product Grid */}
         {filtered.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '60px', background: 'white', borderRadius: '16px' }}>
+          <div style={{ textAlign: 'center', padding: '60px', borderRadius: '16px' }}>
             <Package size={48} style={{ color: '#d1d5db', margin: '0 auto 16px' }} />
             <p style={{ color: '#94a3b8' }}>No products found.</p>
           </div>
