@@ -28,10 +28,13 @@ export default function AdminOrders() {
   };
 
   const STATUS = {
-    Pending: { color: '#d97706', bg: '#fef3c7', icon: <Clock size={14} /> },
-    Approved: { color: '#059669', bg: '#d1fae5', icon: <CheckCircle size={14} /> },
-    Declined: { color: '#dc2626', bg: '#fee2e2', icon: <XCircle size={14} /> },
-  };
+  Pending:   { color: '#d97706', bg: '#fef3c7', icon: <Clock size={14} /> },
+  Approved:  { color: '#059669', bg: '#d1fae5', icon: <CheckCircle size={14} /> },
+  Declined:  { color: '#dc2626', bg: '#fee2e2', icon: <XCircle size={14} /> },
+  Accepted:  { color: '#059669', bg: '#d1fae5', icon: <CheckCircle size={14} /> },
+  Cancelled: { color: '#6b7280', bg: '#f1f5f9', icon: <XCircle size={14} /> },
+  Completed: { color: '#1a2e5a', bg: '#e8edf5', icon: <CheckCircle size={14} /> },
+};
 
   const filtered = filter === 'All' ? orders : orders.filter(o => o.status === filter);
 
@@ -48,7 +51,7 @@ export default function AdminOrders() {
       <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '32px 16px' }}>
         {/* Filter Tabs */}
         <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', background: 'white', padding: '6px', borderRadius: '12px', width: 'fit-content', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-          {['All', 'Pending', 'Approved', 'Declined'].map(f => (
+          {['All', 'Pending', 'Approved', 'Declined', 'Accepted', 'Cancelled', 'Completed'].map(f => (
             <button key={f} onClick={() => setFilter(f)}
               style={{
                 padding: '8px 20px', borderRadius: '8px', border: 'none', cursor: 'pointer',
@@ -111,26 +114,41 @@ export default function AdminOrders() {
 
             {order.status === 'Pending' && (
               <div style={{ display: 'flex', gap: '10px' }}>
-                <button onClick={() => handleUpdate(order._id, 'Approved', 'Your order has been approved. Please pick up at the QCU Cooperative.')}
-                  style={{ flex: 1, padding: '10px', background: '#059669', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-                  <CheckCircle size={16} /> Approve Order
-                </button>
-                <button onClick={() => handleUpdate(order._id, 'Declined', 'Sorry, your order has been declined. Please contact the cooperative for more information.')}
-                  style={{ flex: 1, padding: '10px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-                  <XCircle size={16} /> Decline Order
+              <button onClick={() => handleUpdate(order._id, 'Approved', 'Your order has been approved. Please pick up at the QCU Cooperative.')}
+                style={{ flex: 1, padding: '10px', background: '#059669', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                <CheckCircle size={16} /> Approve Order
+              </button>
+              <button onClick={() => handleUpdate(order._id, 'Declined', 'Sorry, your order has been declined. Please contact the cooperative for more information.')}
+                style={{ flex: 1, padding: '10px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                <XCircle size={16} /> Decline Order
+              </button>
+              </div>
+            )}
+
+            {order.status === 'Declined' && (
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                <div style={{ flex: 1, padding: '10px 16px', background: '#fee2e2', borderRadius: '10px', fontSize: '0.875rem', color: '#dc2626', fontWeight: '600' }}>
+                  Order was declined — user has been notified by email.
+                </div>
+                <button onClick={() => handleComplete(order._id)}
+                  style={{ padding: '10px 20px', background: '#1a2e5a', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', whiteSpace: 'nowrap' }}>
+                  Done
                 </button>
               </div>
             )}
 
-            {(order.status === 'Accepted' || order.status === 'Cancelled') && (
-              <div style={{ display: 'flex', gap: '10px', marginTop: '12px' }}>
-                <span style={{ padding: '8px 16px', background: order.status === 'Accepted' ? '#d1fae5' : '#fee2e2', color: order.status === 'Accepted' ? '#059669' : '#dc2626', borderRadius: '8px', fontSize: '0.875rem', fontWeight: '600' }}>
-                  Student {order.status === 'Accepted' ? 'Accepted ✓' : 'Cancelled ✗'}
-                </span>
-              <button onClick={() => handleComplete(order._id)}
-                style={{ flex: 1, padding: '10px', background: '#1a2e5a', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '700' }}>
-                  ✓ Mark as Done & Remove
-              </button>
+           {(order.status === 'Accepted' || order.status === 'Cancelled') && (
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                <div style={{ flex: 1, padding: '10px 16px', borderRadius: '10px', fontSize: '0.875rem', fontWeight: '600',
+                  background: order.status === 'Accepted' ? '#d1fae5' : '#f1f5f9',
+                  color: order.status === 'Accepted' ? '#059669' : '#6b7280',
+                }}>
+                  Student {order.status === 'Accepted' ? 'confirmed receipt of order' : 'cancelled the order'}
+                </div>
+                <button onClick={() => handleComplete(order._id)}
+                  style={{ padding: '10px 20px', background: '#1a2e5a', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', whiteSpace: 'nowrap' }}>
+                  Done
+                </button>
               </div>
             )}
           </div>

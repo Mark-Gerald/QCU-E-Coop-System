@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { useState } from 'react';
+import { useAuth } from './context/AuthContext';
 import Home from './pages/Home';
 import Shop from './pages/Shop';
 import Cart from './pages/Cart';
@@ -15,10 +16,36 @@ import AdminOrders from './pages/admin/AdminOrders';
 import AdminUsers from './pages/admin/AdminUsers';
 import OrderAction from './pages/OrderAction';
 
-export default function App() {
-  const [cart, setCart] = useState(() => {
-    try { return JSON.parse(localStorage.getItem('cart') || '[]'); } catch { return []; }
-  });
+function AppContent() {
+  const { user } = useAuth();
+  const [cart, setCartRaw] = useState([]);
+
+  // Load cart from localStorage whenever user changes
+  useEffect(() => {
+    if (user?.student_id) {
+      const key = `cart_${user.student_id}`;
+      try {
+        const saved = JSON.parse(localStorage.getItem(key) || '[]');
+        setCartRaw(saved);
+      } catch {
+        setCartRaw([]);
+      }
+    } else {
+      // No user logged in — empty cart
+      setCartRaw([]);
+    }
+  }, [user?.student_id]);
+
+  // Wrap setCart so it always saves to the correct user's key
+  const setCart = (updater) => {
+    setCartRaw(prev => {
+      const next = typeof updater === 'function' ? updater(prev) : updater;
+      if (user?.student_id) {
+        localStorage.setItem(`cart_${user.student_id}`, JSON.stringify(next));
+      }
+      return next;
+    });
+  };
 
   const sharedProps = { cart, setCart };
 
@@ -40,6 +67,14 @@ export default function App() {
         <Route path="/admin/users" element={<AdminUsers />} />
         <Route path="/order-action" element={<OrderAction />} />
       </Routes>
+    </Router>
+  );
+}
+
+export default function App() {
+  return (
+    <Router>
+      <AppContent />
     </Router>
   );
 }

@@ -48,7 +48,7 @@ export default function Footer() {
             <div className="flex flex-col gap-3">
               <div className="flex items-start gap-2" style={{ color: '#94a3b8', fontSize: '0.875rem' }}>
                 <MapPin size={15} className="mt-0.5 flex-shrink-0" style={{ color: '#f5c518' }} />
-                <span>Quezon City University, San Bartolome Novaliches, Quezon City</span>
+                <span>Quezon City University, 673 Quirino Highway, San Bartolome, Novaliches, Quezon City</span>
               </div>
               <div className="flex items-center gap-2" style={{ color: '#94a3b8', fontSize: '0.875rem' }}>
                 <Mail size={15} style={{ color: '#f5c518' }} />

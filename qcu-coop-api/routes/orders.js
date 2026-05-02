@@ -3,7 +3,7 @@ const Order = require('../models/Order');
 const Product = require('../models/Product');
 const { verifyToken } = require('./auth');
 
-const { sendOrderApprovalEmail } = require('../config/mailer');
+const { sendOrderApprovalEmail, sendOrderDeclineEmail } = require('../config/mailer');
 const crypto = require('crypto');
 
 // POST place an order (student)
@@ -17,48 +17,6 @@ router.post('/', verifyToken, async (req, res) => {
 router.get('/my', verifyToken, async (req, res) => {
   const orders = await Order.find({ student_id: req.user.student_id }).sort({ createdAt: -1 });
   res.json(orders);
-});
-
-// GET all orders (admin only)
-router.get('/', verifyToken, async (req, res) => {
-  if (req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
-  const orders = await Order.find().sort({ createdAt: -1 });
-  res.json(orders);
-});
-
-// Update the PUT /:id route:
-router.put('/:id', verifyToken, async (req, res) => {
-  if (req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
-  const { status, admin_note } = req.body;
-
-  try {
-    let updateData = { status, admin_note };
-
-    // Generate action token when approving
-    if (status === 'Approved') {
-      updateData.actionToken = crypto.randomBytes(32).toString('hex');
-    }
-
-    const order = await Order.findByIdAndUpdate(req.params.id, updateData, { new: true });
-
-    // Reduce stock if approved
-    if (status === 'Approved') {
-      for (const item of order.items) {
-        await Product.findByIdAndUpdate(item.product_id, { $inc: { stock: -item.quantity } });
-      }
-      // Send email notification
-      try {
-        await sendOrderApprovalEmail(order, order.actionToken);
-        console.log('Email sent to:', order.student_email);
-      } catch (emailErr) {
-        console.error('Email failed (order still approved):', emailErr.message);
-      }
-    }
-
-    res.json(order);
-  } catch (err) {
-    res.status(500).json({ error: 'Server error' });
-  }
 });
 
 // NEW: Handle email action clicks (Accept/Decline from email)
@@ -81,11 +39,63 @@ router.get('/action', async (req, res) => {
   }
 });
 
+
+// GET all orders (admin only)
+router.get('/', verifyToken, async (req, res) => {
+  if (req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  const orders = await Order.find().sort({ createdAt: -1 });
+  res.json(orders);
+});
+
 // NEW: Admin mark as completed or cancel
 router.put('/:id/complete', verifyToken, async (req, res) => {
   if (req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
   const order = await Order.findByIdAndUpdate(req.params.id, { status: 'Completed' }, { new: true });
   res.json(order);
+});
+
+
+// Update the PUT /:id route:
+router.put('/:id', verifyToken, async (req, res) => {
+  if (req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  const { status, admin_note } = req.body;
+
+  try {
+    let updateData = { status, admin_note };
+
+    if (status === 'Approved') {
+      updateData.actionToken = crypto.randomBytes(32).toString('hex');
+    }
+
+    const order = await Order.findByIdAndUpdate(req.params.id, updateData, { new: true });
+
+    if (status === 'Approved') {
+      for (const item of order.items) {
+        await Product.findByIdAndUpdate(item.product_id, { $inc: { stock: -item.quantity } });
+      }
+      try {
+        await sendOrderApprovalEmail(order, order.actionToken);
+        console.log('Approval email sent to:', order.student_email);
+      } catch (emailErr) {
+        console.error('Approval email failed:', emailErr.message);
+      }
+    }
+
+    // Send decline email
+    if (status === 'Declined') {
+      try {
+        await sendOrderDeclineEmail(order);
+        console.log('Decline email sent to:', order.student_email);
+      } catch (emailErr) {
+        console.error('Decline email failed:', emailErr.message);
+      }
+    }
+
+    res.json(order);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 
 module.exports = router;
