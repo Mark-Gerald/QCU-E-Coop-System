@@ -320,7 +320,7 @@ export default function Cart({ cart, setCart }) {
                       color: 'white', border: 'none', borderRadius: '10px', cursor: confirmLoading ? 'not-allowed' : 'pointer',
                       fontWeight: '700', fontSize: '0.95rem',
                     }}>
-                    {confirmLoading ? 'Verifying...' : '✓ Confirm & Place Order'}
+                    {confirmLoading ? 'Verifying...' : 'Confirm & Place Order'}
                   </button>
                 </div>
               </div>

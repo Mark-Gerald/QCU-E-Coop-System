@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { getAllOrders, updateOrder } from '../../api';
 import { useAuth } from '../../context/AuthContext';
 import { ArrowLeft, CheckCircle, XCircle, Clock, Package } from 'lucide-react';
+import API from '../../api';
 
 export default function AdminOrders() {
   const [orders, setOrders] = useState([]);
@@ -18,6 +19,11 @@ export default function AdminOrders() {
 
   const handleUpdate = async (id, status, note) => {
     const res = await updateOrder(id, { status, admin_note: note });
+    setOrders(prev => prev.map(o => o._id === id ? res.data : o));
+  };
+
+  const handleComplete = async (id) => {
+    const res = await API.put(`/orders/${id}/complete`);
     setOrders(prev => prev.map(o => o._id === id ? res.data : o));
   };
 
@@ -113,6 +119,18 @@ export default function AdminOrders() {
                   style={{ flex: 1, padding: '10px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
                   <XCircle size={16} /> Decline Order
                 </button>
+              </div>
+            )}
+
+            {(order.status === 'Accepted' || order.status === 'Cancelled') && (
+              <div style={{ display: 'flex', gap: '10px', marginTop: '12px' }}>
+                <span style={{ padding: '8px 16px', background: order.status === 'Accepted' ? '#d1fae5' : '#fee2e2', color: order.status === 'Accepted' ? '#059669' : '#dc2626', borderRadius: '8px', fontSize: '0.875rem', fontWeight: '600' }}>
+                  Student {order.status === 'Accepted' ? 'Accepted ✓' : 'Cancelled ✗'}
+                </span>
+              <button onClick={() => handleComplete(order._id)}
+                style={{ flex: 1, padding: '10px', background: '#1a2e5a', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '700' }}>
+                  ✓ Mark as Done & Remove
+              </button>
               </div>
             )}
           </div>

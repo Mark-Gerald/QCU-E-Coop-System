@@ -13,7 +13,7 @@ const OrderSchema = new mongoose.Schema({
     subtotal:     { type: Number },
   }],
   total_amount: { type: Number, required: true },
-  status:       { type: String, enum: ['Pending', 'Approved', 'Declined'], default: 'Pending' },
+  status: { type: String, enum: ['Pending', 'Approved', 'Declined', 'Accepted', 'Cancelled', 'Completed'],default: 'Pending'}, actionToken: { type: String, default: '' },
   admin_note:   { type: String, default: '' },
 }, { timestamps: true });
 

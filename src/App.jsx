@@ -13,6 +13,7 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminProducts from './pages/admin/AdminProducts';
 import AdminOrders from './pages/admin/AdminOrders';
 import AdminUsers from './pages/admin/AdminUsers';
+import OrderAction from './pages/OrderAction';
 
 export default function App() {
   const [cart, setCart] = useState(() => {
@@ -37,6 +38,7 @@ export default function App() {
         <Route path="/admin/products"  element={<AdminProducts />} />
         <Route path="/admin/orders"    element={<AdminOrders />} />
         <Route path="/admin/users" element={<AdminUsers />} />
+        <Route path="/order-action" element={<OrderAction />} />
       </Routes>
     </Router>
   );
