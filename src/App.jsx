@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from './context/AuthContext';
 import Home from './pages/Home';
 import Shop from './pages/Shop';
@@ -50,24 +50,22 @@ function AppContent() {
   const sharedProps = { cart, setCart };
 
   return (
-    <Router>
-      <Routes>
-        <Route path="/"                element={<Home {...sharedProps} />} />
-        <Route path="/shop"            element={<Shop {...sharedProps} />} />
-        <Route path="/cart"            element={<Cart {...sharedProps} />} />
-        <Route path="/orders"          element={<Orders />} />
-        <Route path="/login"           element={<Login />} />
-        <Route path="/register"        element={<Register />} />
-        <Route path="/about"           element={<About />} />
-        <Route path="/contact"         element={<Contact />} />
-        <Route path="/admin/login" element={<AdminLogin />} />
-        <Route path="/admin"           element={<AdminDashboard />} />
-        <Route path="/admin/products"  element={<AdminProducts />} />
-        <Route path="/admin/orders"    element={<AdminOrders />} />
-        <Route path="/admin/users" element={<AdminUsers />} />
-        <Route path="/order-action" element={<OrderAction />} />
-      </Routes>
-    </Router>
+    <Routes>
+      <Route path="/"               element={<Home {...sharedProps} />} />
+      <Route path="/shop"           element={<Shop {...sharedProps} />} />
+      <Route path="/cart"           element={<Cart {...sharedProps} />} />
+      <Route path="/orders"         element={<Orders />} />
+      <Route path="/login"          element={<Login />} />
+      <Route path="/register"       element={<Register />} />
+      <Route path="/about"          element={<About />} />
+      <Route path="/contact"        element={<Contact />} />
+      <Route path="/admin/login"    element={<AdminLogin />} />
+      <Route path="/admin"          element={<AdminDashboard />} />
+      <Route path="/admin/products" element={<AdminProducts />} />
+      <Route path="/admin/orders"   element={<AdminOrders />} />
+      <Route path="/admin/users"    element={<AdminUsers />} />
+      <Route path="/order-action"   element={<OrderAction />} />
+    </Routes>
   );
 }
 

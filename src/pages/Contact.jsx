@@ -80,7 +80,7 @@ export default function Contact() {
                   icon: <Mail size={20} style={{ color: 'white' }} />,
                   bg: '#f5c518',
                   title: 'Email',
-                  text: 'Wala pa ito, Pa tanong please ano email ng QCU Coop',
+                  text: 'qcu.coop.admin@gmail.com',
                 },
               ].map(item => (
                 <div key={item.title} style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>

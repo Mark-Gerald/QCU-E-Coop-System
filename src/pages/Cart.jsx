@@ -86,6 +86,14 @@ export default function Cart({ cart, setCart }) {
     }
   };
 
+  // Add this handler inside the Cart component (near the top with other handlers):
+  const handleVerifyStudentId = (e) => {
+    let val = e.target.value.replace(/[^0-9]/g, ''); // digits only
+    if (val.length > 6) val = val.slice(0, 6);
+    if (val.length > 2) val = val.slice(0, 2) + '-' + val.slice(2);
+    setConfirmForm({ ...confirmForm, student_id: val });
+  };
+
   // Success screen
   if (success) return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
@@ -333,15 +341,25 @@ export default function Cart({ cart, setCart }) {
             </p>
 
             <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', fontWeight: '600', color: '#374151', fontSize: '0.8rem', marginBottom: '6px' }}>Student ID</label>
+              <label style={{ display: 'block', fontWeight: '600', color: '#374151', fontSize: '0.8rem', marginBottom: '6px' }}>
+                Student ID
+              </label>
               <input
-                placeholder="e.g. 25-0169"
+                placeholder="25-0169"
                 value={confirmForm.student_id}
-                onChange={e => setConfirmForm({ ...confirmForm, student_id: e.target.value })}
-                style={{ width: '100%', padding: '12px 14px', borderRadius: '10px', border: '1.5px solid #e5e7eb', fontSize: '0.95rem', outline: 'none', boxSizing: 'border-box', fontFamily: 'monospace', letterSpacing: '1px' }}
+                onChange={handleVerifyStudentId}
+                maxLength={7}
+                style={{
+                        width: '100%', padding: '12px 14px', borderRadius: '10px',
+                        border: '1.5px solid #e5e7eb', fontSize: '1rem', outline: 'none',
+                        boxSizing: 'border-box', fontFamily: 'monospace', letterSpacing: '2px',
+                }}
                 onFocus={e => e.target.style.borderColor = '#1a2e5a'}
                 onBlur={e => e.target.style.borderColor = '#e5e7eb'}
               />
+              <p style={{ color: '#9ca3af', fontSize: '0.72rem', marginTop: '3px' }}>
+                Format: YY-NNNN (e.g. 25-0169)
+              </p>
             </div>
 
             <div style={{ marginBottom: '24px' }}>
