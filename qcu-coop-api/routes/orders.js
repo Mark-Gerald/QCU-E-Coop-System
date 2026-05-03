@@ -74,7 +74,9 @@ router.put('/:id/complete', verifyToken, async (req, res) => {
   if (req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
   try {
     const order = await Order.findByIdAndUpdate(
-      req.params.id, { status: 'Completed' }, { new: true }
+      req.params.id,
+      { status: 'Completed' },
+      { returnDocument: 'after' }
     );
     res.json(order);
   } catch (err) {
@@ -95,11 +97,17 @@ router.put('/:id', verifyToken, async (req, res) => {
       updateData.actionToken = crypto.randomBytes(32).toString('hex');
     }
 
-    const order = await Order.findByIdAndUpdate(req.params.id, updateData, { new: true });
+    const order = await Order.findByIdAndUpdate(
+      req.params.id,
+      updateData,
+      { returnDocument: 'after' }
+    );
+
+    console.log('Order updated. Status:', order.status, '| Token:', order.actionToken || 'none');
 
     if (status === 'Approved') {
       for (const item of order.items) {
-        await Product.findByIdAndUpdate(item.product_id, { $inc: { stock: -item.quantity } });
+        await Product.findByIdAndUpdate(item.product_id, { $inc: { stock: -item.quantity } }, { returnDocument: 'after' });
       }
       try {
         await sendOrderApprovalEmail(order, order.actionToken);

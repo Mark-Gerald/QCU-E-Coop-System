@@ -9,8 +9,8 @@ const transporter = nodemailer.createTransport({
 });
 
 const sendOrderApprovalEmail = async (order, actionToken) => {
-  const acceptUrl = `${process.env.FRONTEND_URL}/order-action?token=${actionToken}&action=accept`;
-  const declineUrl = `${process.env.FRONTEND_URL}/order-action?token=${actionToken}&action=decline`;
+  const acceptUrl = `http://localhost:5000/api/orders/action?token=${actionToken}&action=accept`;
+  const declineUrl = `http://localhost:5000/api/orders/action?token=${actionToken}&action=decline`;
 
   const html = `
     <!DOCTYPE html>
@@ -131,5 +131,3 @@ const sendOrderDeclineEmail = async (order) => {
 };
 
 module.exports = { sendOrderApprovalEmail, sendOrderDeclineEmail };
-
-module.exports = { sendOrderApprovalEmail };
